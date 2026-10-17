@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Web GIS CV.Noah Sukses </title>
+
+    <!-- 1. Panggil library Leaflet -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <!-- 2. Atur ukuran peta -->
+    <style>
+        body {
+            margin: 0;
+        }
+
+        #peta {
+
+
+
+            height: 100vh;
+
+        }
+
+
+
+        .legenda {
+            background: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
+            font-family: Arial, sans-serif;
+            font-size: 13px;
+            line-height: 20px;
+        }
+
+        .legenda h4 {
+            margin: 0 0 6px 0;
+        }
+
+        .kotak {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            margin-right: 6px;
+            vertical-align: middle;
+            border: 1px solid black;
+        }
+
+        .garis {
+            display: inline-block;
+            width: 16px;
+            height: 0;
+            margin-right: 6px;
+            vertical-align: middle;
+            border-top: 3px solid;
+        }
+        .titik {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            margin-right: 0 6px 0 3px;
+            vertical-align: middle;
+            border-radius: 50%;
+            border: 1px solid white;
+            background-color: black;
+            box-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
+        }
+        .judul{
+            Position: absolute;
+            top: 50px;
+            left: 50px;
+            background: white;
+            padding: 10px;
+            border-radius: 6px;
+            box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
+            transform: translateY(-50%);
+            z-index: 1000;
+            text-align: center;
+            font-family: Arial, sans-serif;
+        }
+        .judul h3{
+            margin: 0;
+            font-size: 16px;
+        }
+        .judul p{
+            margin: 0;
+            font-size: 12px;
+        }
+        .arah-utara .panah{
+            font-size: 18px;
+        }
+        .koordinat-box{
+            background: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            box-shadow: 0 0 6px rgba(0, 0, 0, 0.3);
+            font-family: monospace;
+            font-size: 12px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- 3. Kotak tempat peta -->
+    <div id="peta"></div>
+    <div class="judul">
+        <h3>Peta Wilayah SIPB CV. Noah Sukses Bersama</h3>
+        <p>Komoditas: [Tanah Urug] | Desa [Sipahutar], Kec. [Sipoholon], Kab. [Tapanuli Utara]</p>
+        <p>Luas: [2.509] Ha</p>
+    </div>
+
+    <!-- 4. Kode JavaScript kita -->
+
+    <script>
+        // 1. Peta
+
+        var map = L.map('peta').setView([3.0, 98.3], 10);
+        
+        // --- Skala ---
+        L.control.scale({ imperial: false, position: 'bottomleft' }).addTo(map);
+
+        // --- Arah Utara ---
+        var arahUtara = L.control({ position: 'topleft' });
+        arahUtara.onAdd = function (map) {
+            var div = L.DomUtil.create('div', 'arah-utara');
+            div.innerHTML = '<div class="panah">&#9650;</div>U';
+            return div;
+        };
+        arahUtara.addTo(map);
+
+        // --- Koordinat Kursor ---
+        var koordinat = L.control({ position: 'bottomleft' });
+        koordinat.onAdd = function (map) {
+            var div = L.DomUtil.create('div', 'koordinat-box');
+            div.id = 'koordinat';
+            div.innerHTML = 'Lat: - | Long: -';
+            return div;
+        };
+        koordinat.addTo(map);
+
+        map.on('mousemove', function (e) {
+            document.getElementById('koordinat').innerHTML =
+                'Lat: ' + e.latlng.lat.toFixed(6) + ' | Long: ' + e.latlng.lng.toFixed(6);
+        });
+
+        // 2. Basemap
+        var satelit = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+            attribution: 'Esri World Imagery'
+        });
+        satelit.addTo(map);
+        var osm = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; OpenStreetMap'
+        });
+        var googleSat = L.tileLayer('https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+            maxZoom: 20,
+            attribution: '&copy; Google'
+        });
+
+        // Daftar Basemap (Cuma bisa pilih satu)
+        var basemaps = {
+            "Satelit": satelit,
+            "OpenStreetMap": osm,
+            "Google Satelit": googleSat
+        };
+
+        // 3. Layer Data
+        // Polygon SIPB CV. Noah Sukses Bersama
+        var iup = L.geoJSON(null, {
+            style: { color: 'red', weight: 1, fillOpacity: 0 }
+        }).addTo(map).bindPopup("Batas SIPB CV. Noah Sukses Bersama");
+        fetch('SIPB_NSB.geojson')
+            .then(function (respon) { return respon.json(); })
+            .then(function (data) {
+                iup.addData(data);
+                map.fitBounds(iup.getBounds());
+            });
+
+        //Daftar Layer Data (Bisa dinyalakan/dimatikan)
+        var overlays = {
+            "Batas SIPB CV. Noah Sukses Bersama": iup
+        };
+        var kontrollayer = L.control.layers(basemaps, overlays).addTo(map);
+
+        // Batas Desa
+        fetch('BATAS_DESA.geojson')
+            .then(function (respon) { return respon.json(); })
+            .then(function (data) {
+                var batasdesa = L.geoJSON(data, {
+                    style: { color: 'yellow', weight: 1, fillOpacity: 0 },
+                    interactive: false
+                }).addTo(map);
+                kontrollayer.addOverlay(batasdesa, "Batas Desa");
+            });
+
+        //sumberdaya Awal
+        // Klasifikasi Warna Sumberdaya Awal
+        var sumberdayaSIPBColors = {
+            "TEREKA": "yellow",
+            "TERTUNJUK": "red",
+            "TERUKUR": "blue"
+        };
+
+        fetch('SUMBERDAYA.geojson')
+            .then(function (respon) { return respon.json(); })
+            .then(function (data) {
+                var sumberdaya = L.geoJSON(data, {
+                    style: function (feature) {
+                        var jenis = feature.properties.NAMOBJ;
+                        return {
+                            color: 'black',
+                            weight: 1,
+                            fillColor: sumberdayaSIPBColors[jenis] || 'grey',
+                            fillOpacity: 0.5
+                        };
+                    },
+                    onEachFeature: function (feature, layer) {
+                        layer.bindPopup("Jenis Sumberdaya: " + feature.properties.NAMOBJ);
+                    }
+                }).addTo(map);
+                kontrollayer.addOverlay(sumberdaya, "Sumberdaya Awal");
+            });
+        //sumberdaya Pit
+        // Klasifikasi Warna Sumberdaya Pit
+        var sumberdayaColors = {
+            "Sumberdaya Terukur": "Blue",
+            "Sumberdaya Tertunjuk": "red",
+        };
+
+        fetch('SUMBERDAYA_SIPB.geojson')
+            .then(function (respon) { return respon.json(); })
+            .then(function (data) {
+                var sumberdayaSipb = L.geoJSON(data, {
+                    style: function (feature) {
+                        var jenis = feature.properties.NAMOBJ;
+                        return {
+                            color: 'black',
+                            weight: 1,
+                            fillColor: sumberdayaColors[jenis] || 'grey',
+                            fillOpacity: 0.5
+                        };
+                    },
+                    onEachFeature: function (feature, layer) {
+                        layer.bindPopup("Jenis Sumberdaya: " + feature.properties.NAMOBJ);
+                    }
+                }).addTo(map);
+                kontrollayer.addOverlay(sumberdayaSipb, "Sumberdaya SIPB");
+            });
+        // Legenda
+        var legenda = L.control({ position: 'bottomright' });
+
+        legenda.onAdd = function (map) {
+            var div = L.DomUtil.create('div', 'legenda');
+            div.innerHTML =
+                '<h4>Legenda</h4>' +
+                 '<span class="titik"></span> Titik Bor<br>' +
+                '<span class="garis" style="border-color: red;"></span> Batas SIPB<br>' +
+                '<span class="garis" style="border-color: yellow;"></span> Batas Desa<br>' +
+                '<br><b>Sumberdaya</b><br>' +
+                '<span class="kotak" style="background: blue;"></span> Terukur<br>' +
+                '<span class="kotak" style="background: red;"></span> Tertunjuk<br>' +
+                '<span class="kotak" style="background: yellow;"></span> Tereka<br>' +
+                '<span class="kotak" style="background: white; border-color: magenta;"></span> Block Strip<br>' ;
+            return div;
+        };
+        legenda.addTo(map);
+        //Titik Bor
+        fetch('DATA_BOR.geojson')
+            .then(function (respon) { return respon.json(); })
+            .then(function (data) {
+                var titikbor = L.geoJSON(data, {
+                    pointToLayer: function (feature, latlng) {
+                        return L.circleMarker(latlng, {
+                            radius: 6,
+                            fillColor: 'white',
+                            fillColor: 'red',
+                            weight: 1.5,
+                            opacity: 1,
+                            fillOpacity: 0.8
+                        });
+                    },
+                    onEachFeature: function (feature, layer) {
+                        var p = feature.properties;
+                        layer.bindPopup(
+                            "<b> Titik Bor: " + p.HOLE + "</b><br>" +
+                            "Kedalaman: " + p.DEPTH + " m<br>" +
+                            "Elevasi: " + p.Z + " mdpl"
+                        );
+                    }
+                }).addTo(map);
+                kontrollayer.addOverlay(titikbor, "Titik Bor");
+            });
+        //Block Penambangan
+        fetch('BLOCK_STRIP.geojson')
+            .then(function (respon) { return respon.json(); })
+            .then(function (data) {
+                var blockstrip = L.geoJSON(data, {
+                    style: { color: 'magenta', weight: 1, fillColor: 'white', fillOpacity: 0.5 },
+                    onEachFeature: function (feature, layer) {
+                        layer.bindPopup("Block Strip: " + feature.properties.NAME);
+                    }
+                }).addTo(map);
+                kontrollayer.addOverlay(blockstrip, "Block Strip");
+            });
+    </script>
+
+</body>
+
+</html>
