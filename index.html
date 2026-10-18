@@ -56,6 +56,7 @@
             vertical-align: middle;
             border-top: 3px solid;
         }
+
         .titik {
             display: inline-block;
             width: 10px;
@@ -67,7 +68,8 @@
             background-color: black;
             box-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
         }
-        .judul{
+
+        .judul {
             Position: absolute;
             top: 50px;
             left: 50px;
@@ -80,18 +82,22 @@
             text-align: center;
             font-family: Arial, sans-serif;
         }
-        .judul h3{
+
+        .judul h3 {
             margin: 0;
             font-size: 16px;
         }
-        .judul p{
+
+        .judul p {
             margin: 0;
             font-size: 12px;
         }
-        .arah-utara .panah{
+
+        .arah-utara .panah {
             font-size: 18px;
         }
-        .koordinat-box{
+
+        .koordinat-box {
             background: white;
             padding: 4px 8px;
             border-radius: 4px;
@@ -118,7 +124,7 @@
         // 1. Peta
 
         var map = L.map('peta').setView([3.0, 98.3], 10);
-        
+
         // --- Skala ---
         L.control.scale({ imperial: false, position: 'bottomleft' }).addTo(map);
 
@@ -256,14 +262,27 @@
             var div = L.DomUtil.create('div', 'legenda');
             div.innerHTML =
                 '<h4>Legenda</h4>' +
-                 '<span class="titik"></span> Titik Bor<br>' +
+                '<span class="titik"></span> Titik Bor<br>' +
                 '<span class="garis" style="border-color: red;"></span> Batas SIPB<br>' +
+                '<span class="garis" style="border-color: grey;"></span> Pit Design<br>' +
                 '<span class="garis" style="border-color: yellow;"></span> Batas Desa<br>' +
+                '<span class="kotak" style="background: white; border-color: magenta;"></span> Block Strip<br>'+
                 '<br><b>Sumberdaya</b><br>' +
                 '<span class="kotak" style="background: blue;"></span> Terukur<br>' +
                 '<span class="kotak" style="background: red;"></span> Tertunjuk<br>' +
                 '<span class="kotak" style="background: yellow;"></span> Tereka<br>' +
-                '<span class="kotak" style="background: white; border-color: magenta;"></span> Block Strip<br>' ;
+                '<br><b>Peruntukan Lahan</b><br>' +
+                '<span class="kotak" style="background: blue;"></span> Area Buffer<br>' +
+                '<span class="kotak" style="background: red;"></span> Area Tambang  <br>' +
+                '<span class="kotak" style="background: yellow;"></span> Area Fasilitas dan Infrastruktur<br>' +
+                '<span class="kotak" style="background: green;"></span> Area LB3<br>' +
+                '<span class="kotak" style="background: orange;"></span> Stockpile<br>' +
+                '<span class="kotak" style="background: purple;"></span> Area Bebas <br>' +
+                '<span class="kotak" style="background: grey;"></span> Area Lainnya<br>' +
+                '<span class="kotak" style="background: brown;"></span> Jalan Akses<br>' +
+                '<span class="kotak" style="background: pink;"></span> Bank Soil<br>' +
+                '<span class="kotak" style="background: cyan;"></span> Area Parkir dan Workshop<br>' ;
+                
             return div;
         };
         legenda.addTo(map);
@@ -304,6 +323,50 @@
                     }
                 }).addTo(map);
                 kontrollayer.addOverlay(blockstrip, "Block Strip");
+            });
+        //Pit Design
+        fetch('PIT_DGN.geojson')
+            .then(function (respon) { return respon.json(); })
+            .then(function (data) {
+                var pitdesign = L.geoJSON(data, {
+                    style: { color: 'white', weight: 1, fillOpacity: 0 },
+                    interactive: false
+                }).addTo(map);
+                kontrollayer.addOverlay(pitdesign, "Pit Design");
+            });
+
+        // Klasifikasi Peruntukan Lahan
+        var peruntukanlahanColors = {
+            "Area Buffer": "Blue",
+            "Area Tambang": "red",
+            "Area Fasilitas dan Infrastruktur": "yellow",
+            "Area LB3": "green",
+            "Stockpile": "orange",
+            "Area Bebas": "purple",
+            "Area Lainnya": "grey",
+            "Jalan Akses": "brown",
+            "Bank Soil": "pink",
+            "Area Parkir dan Workshop": "cyan"
+        };
+
+        fetch('PERUNTUKAN_LAHAN.geojson')
+            .then(function (respon) { return respon.json(); })
+            .then(function (data) {
+                var peruntukanLahan = L.geoJSON(data, {
+                    style: function (feature) {
+                        var jenis = feature.properties.NAMOBJ;
+                        return {
+                            color: 'black',
+                            weight: 1,
+                            fillColor: peruntukanlahanColors[jenis] || 'grey',
+                            fillOpacity: 0.5
+                        };
+                    },
+                    onEachFeature: function (feature, layer) {
+                        layer.bindPopup("Peruntukan Lahan: " + feature.properties.NAMOBJ);
+                    }
+                }).addTo(map);
+                kontrollayer.addOverlay(peruntukanLahan, "Peruntukan Lahan");
             });
     </script>
 
