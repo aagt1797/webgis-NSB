@@ -226,7 +226,7 @@
                     onEachFeature: function (feature, layer) {
                         layer.bindPopup("Jenis Sumberdaya: " + feature.properties.NAMOBJ);
                     }
-                })
+                });
                 kontrollayer.addOverlay(sumberdaya, "Sumberdaya Awal");
             });
         //sumberdaya Pit
@@ -252,7 +252,7 @@
                     onEachFeature: function (feature, layer) {
                         layer.bindPopup("Jenis Sumberdaya: " + feature.properties.NAMOBJ);
                     }
-                })
+                });
                 kontrollayer.addOverlay(sumberdayaSipb, "Sumberdaya SIPB");
             });
         // Legenda
@@ -266,7 +266,7 @@
                 '<span class="garis" style="border-color: red;"></span> Batas SIPB<br>' +
                 '<span class="garis" style="border-color: grey;"></span> Pit Design<br>' +
                 '<span class="garis" style="border-color: yellow;"></span> Batas Desa<br>' +
-                '<span class="kotak" style="background: white; border-color: magenta;"></span> Block Strip<br>'+
+                '<span class="kotak" style="background: white; border-color: magenta;"></span> Block Strip<br>' +
                 '<br><b>Sumberdaya</b><br>' +
                 '<span class="kotak" style="background: blue;"></span> Terukur<br>' +
                 '<span class="kotak" style="background: red;"></span> Tertunjuk<br>' +
@@ -281,8 +281,8 @@
                 '<span class="kotak" style="background: grey;"></span> Area Lainnya<br>' +
                 '<span class="kotak" style="background: brown;"></span> Jalan Akses<br>' +
                 '<span class="kotak" style="background: pink;"></span> Bank Soil<br>' +
-                '<span class="kotak" style="background: cyan;"></span> Area Parkir dan Workshop<br>' ;
-                
+                '<span class="kotak" style="background: cyan;"></span> Area Parkir dan Workshop<br>';
+
             return div;
         };
         legenda.addTo(map);
@@ -365,7 +365,7 @@
                     onEachFeature: function (feature, layer) {
                         layer.bindPopup("Peruntukan Lahan: " + feature.properties.NAMOBJ);
                     }
-                })
+                });
                 kontrollayer.addOverlay(peruntukanLahan, "Peruntukan Lahan");
             });
     </script>
