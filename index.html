@@ -226,7 +226,7 @@
                     onEachFeature: function (feature, layer) {
                         layer.bindPopup("Jenis Sumberdaya: " + feature.properties.NAMOBJ);
                     }
-                }).addTo(map);
+                })
                 kontrollayer.addOverlay(sumberdaya, "Sumberdaya Awal");
             });
         //sumberdaya Pit
@@ -252,7 +252,7 @@
                     onEachFeature: function (feature, layer) {
                         layer.bindPopup("Jenis Sumberdaya: " + feature.properties.NAMOBJ);
                     }
-                }).addTo(map);
+                })
                 kontrollayer.addOverlay(sumberdayaSipb, "Sumberdaya SIPB");
             });
         // Legenda
@@ -321,7 +321,7 @@
                     onEachFeature: function (feature, layer) {
                         layer.bindPopup("Block Strip: " + feature.properties.NAME);
                     }
-                }).addTo(map);
+                })
                 kontrollayer.addOverlay(blockstrip, "Block Strip");
             });
         //Pit Design
@@ -365,7 +365,7 @@
                     onEachFeature: function (feature, layer) {
                         layer.bindPopup("Peruntukan Lahan: " + feature.properties.NAMOBJ);
                     }
-                }).addTo(map);
+                })
                 kontrollayer.addOverlay(peruntukanLahan, "Peruntukan Lahan");
             });
     </script>
